@@ -1,6 +1,13 @@
 name: Python package
 
-on: [push]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -37,10 +44,13 @@ jobs:
             cd /home/microservices_exam
             source ./venv/bin/activate
             git pull
-            pip install -r requirements.txt
-            python manage.py migrate
-            python manage.py collectstatic --noinput 
+            pip install -r requirements.txt 
             supervisorctl restart service1
             supervisorctl restart service2
             supervisorctl restart service3
             supervisorctl restart service4
+      - name: Run tests and collect coverage
+        run: |
+          pytest -s
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
